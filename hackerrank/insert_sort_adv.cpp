@@ -1,6 +1,7 @@
-ls#include <iostream>
+#include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cassert>
 using namespace std;
 vector<int> readvector(){
     int num_tests = 0;  cin >> num_tests;
@@ -14,13 +15,16 @@ class node {
 private:
     /* data */
     long value; long sum_left, sum_right, sum_here;
-    node* left, *right, *parent; int which_child;   // 1==right child, -1==left child
+
 public:
+    node* left, *right, *parent; int which_child;   // 1==right child, -1==left child
+    int height;
     node (long value){
         this->value = value;
         sum_left = sum_right = 0;  sum_here = 1;
         left = right = parent = nullptr;
         which_child = 0;
+        height = -1;
     }
 
     int cmp(int val){
@@ -43,10 +47,78 @@ public:
     long get_left_sum(){return this->sum_left;}
     long get_here_sum(){return this->sum_here;}
     int get_value(){return this->value;}
+    long get_height(){
+        int left_height = (this->left) ? this->left->get_height() : 0;
+        int right_height = (this->right) ? this->right->get_height() : 0;
+        this->height = max(left_height, right_height)+1;
+        return this->height;
+    }
+    int get_balance(){
+        int left_height = (this->left) ? this->left->get_height() : 0;
+        int right_height = (this->right) ? this->right->get_height() : 0;
+        return right_height - left_height;
+    }
+    void rotate_left(){
+        node* new_root = this->right;
+        if (this->parent) {
+            if (which_child == 1) {
+                this->parent->go_right() = new_root;
+            }
+            else{
+                this->parent->go_left() = new_root;
+            }
+            new_root->which_child = which_child;
+        }
+        this->right = new_root->go_left();
+        if(this->right){
+            this->right->which_child = 1;
+        }
+        this->parent = new_root;    this->which_child = -1;
+        new_root->left = this;
 
-    int get_balance(){return this->sum_right - this->sum_left;}
-    void rotate_left();
-    void rotate_right();
+        /* set sum
+            1. parent sum doesn't change; total # children same
+            2. new root left_sum changes
+            3. this right_sum changes
+         */
+        if (this->right) {
+            this->right_sum = this->right->get_left_sum() +
+                              this->right->get_right_sum() +
+                              this->right->get_here_sum();
+        }
+        new_root->left_sum = this->get_here_sum() + this->get_right_sum() + this->get_left_sum();
+    }
+
+    void rotate_right(){
+        node* new_root = this->left;
+        if (this->parent) {
+            if (which_child == 1) {
+                this->parent->go_right() = new_root;
+            }
+            else{
+                this->parent->go_left() = new_root;
+            }
+            new_root->which_child = which_child;
+        }
+        this->left = new_root->go_right();
+        if(this->left){
+            this->left->which_child = -1;
+        }
+        this->parent = new_root;    this->which_child = 1;
+        new_root->right = this;
+
+        /* set sum
+            1. parent sum doesn't change; total # children same
+            2. new root left_sum changes
+            3. this right_sum changes
+         */
+        if (this->left) {
+            this->left_sum = this->left->get_left_sum() +
+                              this->left->get_right_sum() +
+                              this->left->get_here_sum();
+        }
+        new_root->right_sum = this->get_here_sum() + this->get_right_sum() + this->get_left_sum();
+    }
     bool balance(){
         int bal = this->get_balance();
         if (bal >= -1 && bal <= 1) {
@@ -109,6 +181,13 @@ long add_value(long value, node* root){
     }
     else if(cmp == -1){
         parent->set_left(curr_node);
+    }
+    curr_node = curr_node->get_parent();
+    while(curr_node && (curr_node->get_balance() <= 1 && curr_node->get_balance() >= -1)){
+        curr_node = curr_node->get_parent();
+    }
+    if (curr_node) {
+        curr_node->balance();
     }
     return count;
 }
