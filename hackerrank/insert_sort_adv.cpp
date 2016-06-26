@@ -80,9 +80,9 @@ int add_value(int value, node* root){
 }
 int main() {
     /* Enter your code here. Read input from STDIN. Print output to STDOUT */
-    int num = 1;
+    int num = 0;    cin >> num;
     for(int i = 0; i < num; i++){
-        vector<int> arr = {930887, 692778, 636916, 747794, 238336};
+        vector<int> arr = readvector();
         int count = 0;
         node* root = new node(arr[0]);
         for(int idx = 1; idx < arr.size(); idx++){
