@@ -14,12 +14,13 @@ class node {
 private:
     /* data */
     long value; long sum_left, sum_right, sum_here;
-    node* left, *right, *parent;
+    node* left, *right, *parent; int which_child;   // 1==right child, -1==left child
 public:
     node (long value){
         this->value = value;
         sum_left = sum_right = 0;  sum_here = 1;
         left = right = parent = nullptr;
+        which_child = 0;
     }
 
     int cmp(int val){
@@ -28,10 +29,13 @@ public:
         else{return -1;}
     }
     void set_left(node* input){this->left = input;}
+    void set_left_sum(long input){this->sum_left = input;}
     void set_right(node* input){this->right = input;}
-    void set_parent(node* input){this->parent = input;}
+    void set_right_sum(long input){this->sum_right = input;}
+    void set_parent(node* input, int cmp){this->parent = input; which_child=cmp;}
     node* go_left(){return this->left;}
     node* go_right(){return this->right;}
+    node* get_parent(){return this->parent;}
     void add_left(){this->sum_left++;}
     void add_right(){this->sum_right++;}
     void add_here(){this->sum_here++;}
@@ -39,6 +43,15 @@ public:
     long get_left_sum(){return this->sum_left;}
     long get_here_sum(){return this->sum_here;}
     int get_value(){return this->value;}
+
+    void balance(){
+        /* check parents balance. balance if needed. */
+        if(this->parent){
+            if(parent->sum_right - parent->sum_left > 1){
+                
+            }
+        }
+    }
 };
 
 long add_value(long value, node* root){
@@ -69,7 +82,7 @@ long add_value(long value, node* root){
         }
     }
     curr_node = new node(value);
-    curr_node->set_parent(parent);
+    curr_node->set_parent(parent, cmp);
     if (cmp == 1) {
         parent->set_right(curr_node);
     }
