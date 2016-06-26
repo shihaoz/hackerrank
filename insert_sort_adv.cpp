@@ -24,14 +24,30 @@ public:
     void add_left(){this.sum_left++;}
     void add_right(){this.sum_right++;}
     void add_here(){this.sum_here++;}
+    int get_right_sum(){return this.sum_right;}
+    int get_left_sum(){Return this.sum_left;}
 };
 
 void add_value(int value, node* root){
     int count = 0;
     node* curr_node = root, *parent = nullptr;
     while(curr_node != nullptr){
+        count += curr_node->sum_right;
         /* do counting + increment sum */
+        int cmp = curr_node->cmp(value);
+        if(cmp == 0){
+            // found it
+            curr_node->add_here();
+            cout << count << "\n";
+            return;
+        }
+        else if(cmp == 1){
+            // value > curr_node
+            count -= curr_node->sum_right;
+            curr_node->add_right();
+            curr_node = curr_node->go_right();
 
+        }
     }
     cout << count << "\n";
     curr_node = new node(value);
