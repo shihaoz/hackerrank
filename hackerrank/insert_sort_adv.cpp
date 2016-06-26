@@ -1,4 +1,4 @@
-#include <iostream>
+ls#include <iostream>
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -44,12 +44,33 @@ public:
     long get_here_sum(){return this->sum_here;}
     int get_value(){return this->value;}
 
-    void balance(){
-        /* check parents balance. balance if needed. */
-        if(this->parent){
-            if(parent->sum_right - parent->sum_left > 1){
-                
+    int get_balance(){return this->sum_right - this->sum_left;}
+    void rotate_left();
+    void rotate_right();
+    bool balance(){
+        int bal = this->get_balance();
+        if (bal >= -1 && bal <= 1) {
+            return true;
+        }
+        if (bal > 1) {
+            /* need rotation */
+            // check right sub child balance
+            int child_bal = this->right->get_balance();
+            if(child_bal == -1 || child_bal == 0){
+                /* right rotate child */
+                this->right->rotate_right();
             }
+            this->rotate_left();
+            return false;
+        }
+        else{
+            // check left sub child balance
+            int child_bal = this->left->get_balance();
+            if (child_bal == 1 || child_bal == 0) {
+                this->left->rotate_left();
+            }
+            this->rotate_right();
+            return false;
         }
     }
 };
